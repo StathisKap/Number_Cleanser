@@ -1,12 +1,3 @@
-def Read_File(name):
-    try:
-        file = open(name, "rt")#, encoding="ISO-8859-1")
-        return file
-    except:
-        print("Error: Couldn't open file")
-        exit(1)
-
-
 English_numbers = {
     "zero" : 0,
     "one" : 1,
@@ -21,6 +12,7 @@ English_numbers = {
     "eleven" : 11,
     "fourteen" : 14,
     "sixteen" : 16,
+    "nineteen" : 20, 
     "twenty" : 20, 
     "twenty-one" : 21, 
     "twenty-two" : 22, 
@@ -56,26 +48,75 @@ German_numbers = {
     "einundzwanzig" : 21, 
 }
 
-file = Read_File("Sample2.txt")
-Lines = file.readlines()
+def Read_File(name):
+    try:
+        file = open(name, "rt")
+        return file
+    except:
+        print("Error: Couldn't open file")
+        exit(1)
 
-valid_sets = list()
-invalid_sets = list()
+def Translate(list_in):
+    valid_sets = list()
+    invalid_sets = list()
 
-for line in Lines:
-    line = line.replace('“', '').replace('”', '').replace('\n', '').replace(" ", "")
-    members = line.split(",")
-    valid_members = list()
-    invalid_members = list()
-    for i in range(len(members)):
-        try:
-            valid_members.append(int(members[i]))
-        except:
-            invalid_members.append(members[i])
-    print()
-    valid_sets.append(valid_members) if len(valid_members) > 1 else print("no")
-    invalid_sets.append(invalid_members) if len(valid_members) > 1 else print("no")
+    for small_list in list_in:
+        valid_members = list()
+        for member in small_list:
+            if member.lower() in English_numbers:
+                valid_members.append(English_numbers[member.lower()])
 
-print(valid_sets)
+            elif member.lower() in French_numbers:
+                valid_members.append(French_numbers[member.lower()])
+
+            elif member.lower() in German_numbers:
+                valid_members.append(German_numbers[member.lower()])
+            else:
+                invalid_sets.append(small_list)
+
+        valid_sets.append(valid_members)
+    return invalid_sets , valid_sets
+
+
+def Num_and_Text(filename): 
+    file = Read_File("Sample2.txt")
+    Lines = file.readlines()
+
+    valid_sets = list()
+    text_sets = list()
+
+    for line in Lines:
+        line = line.replace('“', '').replace('”', '').replace('\n', '').replace(" ", "")
+        members = line.split(",")
+        valid_members = list()
+        text_members = list()
+        for i in range(len(members)):
+            if len(members[i]) > 0:
+                if members[i][0].isalpha():
+                    text_members.append(members[i])
+                elif len(members[i]):
+                    valid_members.append(int(members[i]))
+            else:
+                text_members.append(members[i])
+
+
+
+        if len(valid_members) > 1:
+            valid_sets.append(valid_members)
+
+        if len(text_members) > 1:
+            text_sets.append(text_members)
+    file.close()
+    return valid_sets, text_sets
+
+
+
+
+valid_sets, text_sets = Num_and_Text("Sample2.txt")
+invalid_sets , sets = Translate(text_sets)
+valid_sets.append(sets)
+
 print(invalid_sets)
-file.close()
+print()
+print(valid_sets)
+
